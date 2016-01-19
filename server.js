@@ -1,22 +1,22 @@
 var express = require('express');
-// var bodyParser = require('body-parser');
 var app = express();
 
-// third-party middleware
-app.use(bodyParser.urlencoded());
-
-// custom middleware
-app.user(function(request, response, next) {
-    console.log("this will log on every request");
+app.param('name', function(request, response, next, name) {
+    request.name = name[0].toUpperCase() + name.substring(1);
     next();
-});
-// route function
-app.get('/route', function(request, response) {
-    response.send("this is a route");
+
+    Users.findOne({ username: name }, function(err, user) {
+        request.user = user;
+        next();
+    });
 });
 
-// built-in middleware
-app.use(express.static('./public'));
+app.get('/name/:name', function(request, response) {
+    response.send('Your name is ' + request.name);
+});
+
+app.put('/name/:name/edit');
+app.delete('/name/:name/delete');
 
 app.listen(3000, function() {
   console.log("Listening on port 3000");
